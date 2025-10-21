@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Honeypot Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Honeypot Attack Dashboard</h1>
+            <p>Real-time monitoring of attack patterns</p>
+        </header>
+        
+        <div class="stats-row">
+            <div class="stat-box">
+                <h3>Total Attacks</h3>
+                <div class="stat-value" id="total-attacks">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Unique IPs</h3>
+                <div class="stat-value" id="unique-ips">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Countries</h3>
+                <div class="stat-value" id="countries">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Last Attack</h3>
+                <div class="stat-value" id="last-attack">Never</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="chart-container">
+                <h2>Attack Origins</h2>
+                <div id="map-chart"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="chart-container half">
+                <h2>Attacks Over Time</h2>
+                <div id="time-chart"></div>
+            </div>
+            <div class="chart-container half">
+                <h2>Command Categories</h2>
+                <div id="command-chart"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="table-container half">
+                <h2>Top Usernames</h2>
+                <table id="username-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-container half">
+                <h2>Top Passwords</h2>
+                <table id="password-table">
+                    <thead>
+                        <tr>
+                            <th>Password</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="table-container">
+                <h2>Recent Attack Attempts</h2>
+                <table id="attacks-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>IP</th>
+                            <th>Country</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Honeypot Dashboard | Last updated: <span id="last-updated">Never</span></p>
+    </footer>
+    
+    <script>
+        // Function to update the dashboard
+        function updateDashboard() {
+            $.getJSON('/api/dashboard-data', function(data) {
+                // Update stats
+                $('#total-attacks').text(data.auth_stats.total_attempts);
+                $('#unique-ips').text(data.auth_stats.unique_ips);
+                $('#countries').text(data.country_count);
+                $('#last-attack').text(data.last_attack);
+                $('#last-updated').text(new Date().toLocaleString());
+                
+                // Update charts
+                Plotly.newPlot('map-chart', data.map_data.data, data.map_data.layout);
+                Plotly.newPlot('time-chart', data.time_data.data, data.time_data.layout);
+                Plotly.newPlot('command-chart', data.command_data.data, data.command_data.layout);
+                
+                // Update username table
+                var usernameTable = $('#username-table tbody');
+                usernameTable.empty();
+                $.each(data.auth_stats.top_usernames, function(username, count) {
+                    usernameTable.append('<tr><td>' + username + '</td><td>' + count + '</td></tr>');
+                });
+                
+                // Update password table
+                var passwordTable = $('#password-table tbody');
+                passwordTable.empty();
+                $.each(data.auth_stats.top_passwords, function(password, count) {
+                    passwordTable.append('<tr><td>' + password + '</td><td>' + count + '</td></tr>');
+                });
+                
+                // Update attacks table
+                var attacksTable = $('#attacks-table tbody');
+                attacksTable.empty();
+                $.each(data.recent_attacks, function(i, attack) {
+                    attacksTable.append(
+                        '<tr><td>' + attack.time + '</td><td>' + attack.ip + '</td><td>' + 
+                        attack.country + '</td><td>' + attack.username + '</td><td>' + 
+                        attack.password + '</td></tr>'
+                    );
+                });
+            });
+        }
+        
+        // Update dashboard on load and every 30 seconds
+        $(document).ready(function() {
+            updateDashboard();
+            setInterval(updateDashboard, 30000);
+        });
+    </script>
+</body>
+</html>
+    

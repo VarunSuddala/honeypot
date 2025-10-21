@@ -1,0 +1,4 @@
+2025-10-21 19:23:44,297 - fail2ban_integration - INFO - Starting fail2ban integration process
+2025-10-21 19:23:44,309 - fail2ban_integration - INFO - Fail2ban integration completed. 0 new IPs banned.
+2025-10-21 19:25:15,845 - fail2ban_integration - INFO - Starting fail2ban integration process
+2025-10-21 19:25:15,866 - fail2ban_integration - INFO - Fail2ban integration completed. 0 new IPs banned.

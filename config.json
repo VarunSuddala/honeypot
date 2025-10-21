@@ -1,0 +1,9 @@
+{
+    "ssh_port": 2222,
+    "banner": "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5",
+    "max_connections": 10,
+    "connection_timeout": 30,
+    "log_dir": "logs",
+    "enable_commands": true,
+    "fake_filesystem": true
+}
